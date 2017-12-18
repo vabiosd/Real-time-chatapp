@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AD_UNIT_ID_FOR_BANNER_TEST</key>
+	<string>ca-app-pub-3940256099942544/2934735716</string>
+	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
+	<string>ca-app-pub-3940256099942544/4411468910</string>
+	<key>CLIENT_ID</key>
+	<string>419093690569-s1mj1a6ah8llia27ses5fof74l42omd2.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.419093690569-s1mj1a6ah8llia27ses5fof74l42omd2</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBXbv1LRJtNUaEm7rRTOFl2q-SG8fW18AI</string>
+	<key>GCM_SENDER_ID</key>
+	<string>419093690569</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.vabappd.WhatsAppClone</string>
+	<key>PROJECT_ID</key>
+	<string>whatsappclone-b3a26</string>
+	<key>STORAGE_BUCKET</key>
+	<string>whatsappclone-b3a26.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<true></true>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<false></false>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:419093690569:ios:4fe4f417511fecb3</string>
+	<key>DATABASE_URL</key>
+	<string>https://whatsappclone-b3a26.firebaseio.com</string>
+</dict>
+</plist>
