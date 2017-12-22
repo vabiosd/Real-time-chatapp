@@ -21,10 +21,7 @@ class newmessageViewController: UITableViewController{
             if let dict = snapshot.value as? [String: Any]{
                 let user = User(dictionary: dict)
                 user.id = snapshot.key
-                //below might crash if keys in user class are not as same as those of the user in database
-                user.setValuesForKeys(dict)
                 self.users.append(user)
-                // directly updating table might lead to a crash
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                 }
@@ -35,7 +32,6 @@ class newmessageViewController: UITableViewController{
         dismiss(animated: true, completion: nil)
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
         return users.count
     }
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
