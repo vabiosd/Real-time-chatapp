@@ -135,7 +135,6 @@ class ViewController: UITableViewController {
             if let dict = snapshot.value as? [String: Any]{
                 self.navigationItem.title = dict["name"] as? String
                 let user = User(dictionary: dict)
-                user.setValuesForKeys(dict)
                 self.setupnavbarwithuser(user: user)
             }
         }, withCancel: nil)
