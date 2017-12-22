@@ -8,6 +8,8 @@
 
 import UIKit
 import Firebase
+import MobileCoreServices
+import AVFoundation
 class chatlogcontroller: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     var user: User?{
         didSet{
@@ -94,12 +96,63 @@ class chatlogcontroller: UICollectionViewController, UITextFieldDelegate, UIColl
         let imagepickerc = UIImagePickerController()
         imagepickerc.delegate = self
         imagepickerc.allowsEditing = true
+        imagepickerc.mediaTypes = [kUTTypeMovie as String, kUTTypeVideo as String, kUTTypeImage as String]
         present(imagepickerc, animated: true, completion: nil)
     }
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
     }
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        if let videoUrl = info[UIImagePickerControllerMediaURL] as? URL{
+            handleVideoSelectedForurl(url: videoUrl)
+        }else{
+            handleImageselectedForInfo(info: info)
+        }
+        
+        dismiss(animated: true, completion: nil)
+
+    }
+    private func handleVideoSelectedForurl(url: URL){
+        let filename = NSUUID().uuidString + ".mov"
+        let uploadTask = Storage.storage().reference().child("message_videos    ").child(filename).putFile(from: url, metadata: nil, completion: { (metadata, err) in
+            if let error = err{
+                print("failed upload", error)
+                return
+            }
+            if let storageUrl = metadata?.downloadURL()?.absoluteString{
+                
+                if let thumbNail = self.thumbnail(for: url){
+                    self.uploadtofirebase(image: thumbNail, completion: { (imageUrl) in
+                        let properties = ["videoUrl": storageUrl, "imageheight": thumbNail.size.height, "imagewidth": thumbNail.size.width, "imageurl": imageUrl ] as [String : Any]
+                        self.senmessagewithproperties(property: properties)
+                    })
+                   
+                }
+                
+            }
+        })
+        uploadTask.observe(.progress) { (snapshot) in
+            if let count = snapshot.progress?.completedUnitCount{
+                self.navigationItem.title = "\(count)"
+            }
+        }
+        uploadTask.observe(.success) { (snap) in
+            self.navigationItem.title = self.user?.name
+        }
+    }
+    private func thumbnail(for fileUrl: URL) -> UIImage?{
+        let asset = AVAsset(url: fileUrl)
+        let Imagegen = AVAssetImageGenerator(asset: asset)
+        do{
+            let thumbcgimage = try Imagegen.copyCGImage(at: CMTimeMake(1, 60), actualTime: nil)
+            return UIImage(cgImage: thumbcgimage)
+        }catch let err{
+            print(err)
+        }
+        
+        return nil
+    }
+    private func handleImageselectedForInfo(info: [String:Any]){
         var selectedimage: UIImage?
         if let editedimage = info["UIImagePickerControllerEditedImage"] as? UIImage{
             selectedimage = editedimage
@@ -108,22 +161,22 @@ class chatlogcontroller: UICollectionViewController, UITextFieldDelegate, UIColl
             selectedimage = originalimage
         }
         if let selected = selectedimage{
-            uploadtofirebase(image: selected)
+            uploadtofirebase(image: selected, completion: { (imageUrl) in
+                self.sendmessagewithimage(imageurl: imageUrl, image: selected)
+            })
         }
-        dismiss(animated: true, completion: nil)
-
     }
-    func uploadtofirebase(image: UIImage){
+    func uploadtofirebase(image: UIImage, completion: @escaping (_ imageUrl: String) -> ()){
         let imagename = NSUUID().uuidString
         let ref = Storage.storage().reference().child("message_images").child(imagename)
         if let uploaddata = UIImageJPEGRepresentation(image, 0.2){
             ref.putData(uploaddata, metadata: nil, completion: { (metadata, error) in
-                if error != nil{
-                    print(error)
+                if let err = error{
+                    print(err)
                     return
                 }
                 if let imageurl = metadata?.downloadURL()?.absoluteString{
-                    self.sendmessagewithimage(imageurl: imageurl, image: image)
+                    completion(imageurl)
                 }
             })
         }
@@ -190,6 +243,7 @@ class chatlogcontroller: UICollectionViewController, UITextFieldDelegate, UIColl
         cell.chatlogcontroller = self
         cell.textview.text = messages[indexPath.row].text
         let message = messages[indexPath.row]
+        cell.message = message
         setupchatcell(cell: cell, message: message)
         if let text = message.text{
             cell.textview.isHidden = false
@@ -198,12 +252,12 @@ class chatlogcontroller: UICollectionViewController, UITextFieldDelegate, UIColl
             cell.bubblewidthanchor?.constant = 200
             cell.textview.isHidden = true
         }
-        
+        cell.playButton.isHidden = message.videoUrl == nil
         return cell
     }
     func setupchatcell(cell: chatMesaageCell, message: Message){
             if message.fromid == Auth.auth().currentUser?.uid{
-            cell.bubble.backgroundColor = UIColor.init(red: 0, green: 137, blue: 249, alpha: 1)
+            cell.bubble.backgroundColor = UIColor.init(red: 0, green: 137/255, blue: 249/255, alpha: 1)
             cell.textview.textColor = .white
             cell.profileimage.isHidden = true
             cell.bubbleviewrightanchor?.isActive = true
@@ -211,7 +265,7 @@ class chatlogcontroller: UICollectionViewController, UITextFieldDelegate, UIColl
 
         }else{
             cell.profileimage.isHidden = false
-            cell.bubble.backgroundColor = UIColor.init(red: 220, green: 220, blue: 220, alpha: 1)
+            cell.bubble.backgroundColor = UIColor.init(red: 220/255, green: 220/255, blue: 220/255, alpha: 1)
                 cell.textview.textColor = .black
             cell.bubbleviewrightanchor?.isActive = false
             cell.bubbleleftanchor?.isActive = true

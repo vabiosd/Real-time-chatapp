@@ -53,8 +53,10 @@ extension loginController: UIImagePickerControllerDelegate, UINavigationControll
             self.dismiss(animated: true, completion: nil)
         })
     }
+    
     @objc func handleselectprofileimage(){
         let picker = UIImagePickerController()
+        picker.sourceType = .photoLibrary
         picker.delegate = self
         picker.allowsEditing = true
         present(picker, animated: true, completion: nil)
@@ -63,6 +65,7 @@ extension loginController: UIImagePickerControllerDelegate, UINavigationControll
         print("cancelled picker")
         dismiss(animated: true, completion: nil)
     }
+
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         var selectedimage: UIImage?
         if let editedimage = info["UIImagePickerControllerEditedImage"] as? UIImage{
